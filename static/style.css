@@ -1,0 +1,135 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  #search-container {
+    padding: 10px;
+    background: #0d1117;
+    color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+  #search-input {
+    width: 50%;
+    padding: 10px;
+    border: 1px solid #00ffcc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  #search-button, #mode-toggle-button, #random-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  #search-button {
+    background: #00ffcc;
+    color: #1c1c1e;
+  }
+  
+  #search-button:hover {
+    background: #00e6b8;
+  }
+  
+  #random-button {
+    background: #ff9800;
+    color: #1c1c1e;
+  }
+  
+  #random-button:hover {
+    background: #ffb74d;
+  }
+  
+  #mode-toggle-button {
+    background: #404040;
+    color: #fff;
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  #mode-toggle-button:hover {
+    background: #555;
+  }
+  
+  #globeViz {
+    width: 100%;
+    height: 80vh;
+    background: #0d1117;
+  }
+  
+  #newsModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+  
+  .modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #1c1c1e;
+    color: #f0f0f0;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    text-align: center;
+  }
+  
+  .modal-content h2 {
+    margin-bottom: 10px;
+  }
+  
+  .modal-content a {
+    display: inline-block;
+    margin-top: 10px;
+    text-decoration: none;
+    color: #00ffcc;
+    font-weight: bold;
+  }
+  
+  .modal-content a:hover {
+    text-decoration: underline;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ff4d4d;
+  }
+  
+  #countryTitle {
+    font-size: 24px;
+    color: #00e6b8;
+    margin-bottom: 10px;
+  }
+  
+  #newsTitle {
+    font-size: 20px;
+    color: #f0f0f0;
+    margin-bottom: 10px;
+  }
+  

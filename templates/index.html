@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📰 Páginas do Mundo 🌎</title>
+  <link rel="stylesheet" href="static/style.css">
+  <script src="https://unpkg.com/globe.gl"></script>
+</head>
+<body>
+  <div id="search-container">
+    <input id="search-input" type="text" placeholder="Digite o nome de um país...">
+    <button id="search-button">Buscar 🔍 </button>
+    <button id="random-button">Notícia aleatória 🎲</button>
+    <button id="mode-toggle-button">☀️</button>
+  </div>
+  
+  <div id="globeViz"></div>
+  
+  <div id="newsModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">×</span>
+      <h1 id="countryTitle"></h1>
+      <h2 id="newsTitle"></h2>
+      <a id="newsLink" target="_blank">Leia a notícia</a>
+    </div>
+  </div>
+
+  <script>
+    let newsData = {};
+    let isNightMode = true; // Variável para controlar o modo
+
+    fetch('http://127.0.0.1:5000/get-news')
+      .then(response => response.json())
+      .then(data => {
+        newsData = data; // Agora o objeto 'newsData' contém todos os países e suas notícias
+        renderGlobe(newsData); // Função que renderiza o globo
+      })
+      .catch(err => console.error('Erro ao buscar as notícias:', err));
+
+    function renderGlobe(data) {
+      const markerSvg = `<div style="font-size: 16px; color: #00ffcc; cursor: pointer;">📍</div>`;
+      window.globe = new Globe(document.getElementById('globeViz'))
+        .globeImageUrl(isNightMode ? '//unpkg.com/three-globe/example/img/earth-night.jpg' : '//unpkg.com/three-globe/example/img/earth-day.jpg') // Imagem conforme o modo
+        .backgroundColor(isNightMode ? '#0d1117' : '#87ceeb') // Alterando a cor de fundo conforme o modo
+        .htmlElementsData(Object.values(data)) // Passando os dados para o globo
+        .htmlElement(d => {
+          const el = document.createElement('div');
+          el.innerHTML = markerSvg;
+          el.style.color = '#00ffcc';
+          el.style.width = '30px';
+          el.style['pointer-events'] = 'auto';
+          el.style.cursor = 'pointer';
+          el.onclick = () => showModal(d.news.title, d.news.link, d.label); // Chama showModal ao clicar
+          return el;
+        });
+    }
+
+    function showModal(title, link, country) {
+      document.getElementById('countryTitle').innerText = country;
+      document.getElementById('newsTitle').innerText = title;
+      document.getElementById('newsLink').href = link;
+      document.getElementById('newsModal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('newsModal').style.display = 'none';
+    }
+
+    document.getElementById('search-button').addEventListener('click', () => {
+      const countryName = document.getElementById('search-input').value.toLowerCase();
+      const country = Object.values(newsData).find(c => c.label.toLowerCase() === countryName);
+
+      if (country) {
+        showModal(country.news.title, country.news.link, country.label);
+      } else {
+        alert('País não encontrado ou sem notícias disponíveis.');
+      }
+    });
+
+    document.getElementById('random-button').addEventListener('click', () => {
+      const countries = Object.values(newsData);
+      if (countries.length > 0) {
+        const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+        showModal(randomCountry.news.title, randomCountry.news.link, randomCountry.label);
+      } else {
+        alert('Nenhuma notícia disponível no momento.');
+      }
+    });
+
+    document.getElementById('mode-toggle-button').addEventListener('click', () => {
+      isNightMode = !isNightMode; // Alterna entre os modos
+      renderGlobe(newsData); // Atualiza o globo com o novo modo
+      document.getElementById('mode-toggle-button').innerText = isNightMode ? '🌙' : '☀️'; // Troca o ícone do botão
+    });
+  </script>
+</body>
+</html>
