@@ -3,16 +3,23 @@ from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import json
+import gspread
 
 # Defina o escopo para acessar a planilha
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Carregue as credenciais do JSON
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "C:/Users/marco/Downloads/paginasdomundo-7384106e9a3c.json", scope)
+# Caminho para o arquivo JSON de credenciais
+credentials_path = 'config/credentials.json'
 
-# Autentique a conta de serviço
+# Carregar as credenciais diretamente do arquivo JSON
+with open(credentials_path, 'r') as file:
+    credentials_data = json.load(file)
+
+# Usar as credenciais carregadas para autenticar com o Google Sheets
+credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_data, ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
 client = gspread.authorize(credentials)
+
 
 # Abra a planilha pelo nome
 spreadsheet = client.open("paginasdomundo")
