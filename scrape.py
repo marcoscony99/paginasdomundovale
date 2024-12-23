@@ -3,23 +3,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-import json
-import gspread
 
 # Defina o escopo para acessar a planilha
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Caminho para o arquivo JSON de credenciais
-credentials_path = 'config/credentials.json'
+# Carregue as credenciais do JSON
+credentials = ServiceAccountCredentials.from_json_keyfile_name(
+    "C:/Users/marco/Downloads/paginasdomundo-7384106e9a3c.json", scope)
 
-# Carregar as credenciais diretamente do arquivo JSON
-with open(credentials_path, 'r') as file:
-    credentials_data = json.load(file)
-
-# Usar as credenciais carregadas para autenticar com o Google Sheets
-credentials = ServiceAccountCredentials.from_json_keyfile_dict(credentials_data, ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive'])
+# Autentique a conta de serviço
 client = gspread.authorize(credentials)
-
 
 # Abra a planilha pelo nome
 spreadsheet = client.open("paginasdomundo")
@@ -27,19 +20,29 @@ worksheet = spreadsheet.sheet1  # Acessa a primeira aba da planilha
 
 # Funções de scraping para cada site
 def scrape_oglobo():
+    # URL da página principal de O Globo
     url = 'https://oglobo.globo.com/'
+
+    # Fazendo a requisição para a página
     response = requests.get(url)
 
+    # Verificando se a requisição foi bem-sucedida
     if response.status_code == 200:
+        # Criando o objeto BeautifulSoup
         soup = BeautifulSoup(response.content, 'html.parser')
-        headline_div = soup.find('div', class_='container-sete-destaques__manchete-principal-content')
 
-        if headline_div:
-            headline_link = headline_div.find('a')
-            link_url = headline_link['href'] if headline_link else "Link não encontrado"
-            title_element = headline_div.find('h2', class_='container-sete-destaques__title')
+        # Procurar a manchete principal
+        headline_anchor = soup.find('a', class_=lambda x: x and 'container-sete-destaques__url' in x)
+
+        if headline_anchor:
+            # Tenta obter o link do atributo 'href'
+            link_url = headline_anchor.get('href', "Link não encontrado")
+
+            # Busca o título dentro do link
+            title_element = headline_anchor.find('h2', class_=lambda x: x and 'container-sete-destaques__title' in x)
             title_text = title_element.get_text(strip=True) if title_element else "Título não encontrado"
 
+            # Retorna os dados como dicionário
             return {'title': title_text, 'link': link_url}
         else:
             return {'title': "Manchete principal não encontrada.", 'link': None}
