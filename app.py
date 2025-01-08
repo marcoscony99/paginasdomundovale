@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import gspread
+import json
+import os
 from oauth2client.service_account import ServiceAccountCredentials
 from scrape import (
     scrape_oglobo, scrape_nyt, scrape_guardian, scrape_lemonde, scrape_smh,
@@ -14,9 +16,18 @@ CORS(app)
 
 # Configuração de acesso ao Google Sheets
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "C:/Users/marco/Downloads/paginasdomundo-7384106e9a3c.json", scope
-)
+
+# Obter o conteúdo da variável de ambiente 'GOOGLE_CREDENTIALS_JSON'
+credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+
+if credentials_json is None:
+    raise ValueError("A variável de ambiente 'GOOGLE_CREDENTIALS_JSON' não foi definida.")
+
+# Carregar as credenciais a partir da variável de ambiente
+credentials_info = json.loads(credentials_json)
+credentials = ServiceAccountCredentials.from_service_account_info(credentials_info, scope)
+
+# Autorizar e acessar a planilha
 client = gspread.authorize(credentials)
 spreadsheet = client.open("paginasdomundo")
 worksheet = spreadsheet.sheet1  # Primeira aba da planilha
