@@ -1,5 +1,5 @@
 gunicorn==20.1.0
-Flask==2.2.2  # ou outra versão estável 2.x
+Flask>=2.2.0
 Flask-Cors==5.0.0
 gspread==6.1.4
 google-auth==2.18.0
