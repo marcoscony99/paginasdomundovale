@@ -3,7 +3,8 @@ from flask_cors import CORS
 import gspread
 import json
 import os
-from oauth2client.service_account import ServiceAccountCredentials
+from google.auth.transport.requests import Request
+from google.oauth2.service_account import Credentials
 from scrape import (
     scrape_oglobo, scrape_nyt, scrape_guardian, scrape_lemonde, scrape_smh,
     scrape_clarin, scrape_corriere, scrape_elpais, scrape_thestar, scrape_lanacion,
@@ -25,7 +26,11 @@ if credentials_json is None:
 
 # Carregar as credenciais a partir da variável de ambiente
 credentials_info = json.loads(credentials_json)
-credentials = ServiceAccountCredentials.from_service_account_info(credentials_info, scope)
+credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
+
+# Verificar se as credenciais precisam ser atualizadas
+if credentials.expired and credentials.refresh_token:
+    credentials.refresh(Request())
 
 # Autorizar e acessar a planilha
 client = gspread.authorize(credentials)
@@ -76,8 +81,8 @@ def get_news():
     for row in sheet_data:
         country = row['label']
         news_data[country] = {
-            'lat': float(row['lat'].strip('"')),
-            'lng': float(row['lng'].strip('"')),
+            'lat': float(row['lat'].strip('"')) if row['lat'] else 0,
+            'lng': float(row['lng'].strip('"')) if row['lng'] else 0,
             'label': country,
             'news': {
                 'title': row['Manchete'],

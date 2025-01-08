@@ -1,7 +1,7 @@
 import gspread
 import json
 import os
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -17,7 +17,7 @@ if credentials_json is None:
 
 # Carregar as credenciais a partir da variável de ambiente
 credentials_info = json.loads(credentials_json)
-credentials = ServiceAccountCredentials.from_service_account_info(credentials_info, scope)
+credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
 # Autentique a conta de serviço
 client = gspread.authorize(credentials)
