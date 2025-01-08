@@ -1,4 +1,6 @@
 import gspread
+import json
+import os
 from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from bs4 import BeautifulSoup
@@ -7,9 +9,15 @@ from datetime import datetime
 # Defina o escopo para acessar a planilha
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
-# Carregue as credenciais do JSON
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "C:/Users/marco/Downloads/paginasdomundo-7384106e9a3c.json", scope)
+# Obter o conteúdo da variável de ambiente 'GOOGLE_CREDENTIALS_JSON'
+credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+
+if credentials_json is None:
+    raise ValueError("A variável de ambiente 'GOOGLE_CREDENTIALS_JSON' não foi definida.")
+
+# Carregar as credenciais a partir da variável de ambiente
+credentials_info = json.loads(credentials_json)
+credentials = ServiceAccountCredentials.from_service_account_info(credentials_info, scope)
 
 # Autentique a conta de serviço
 client = gspread.authorize(credentials)
