@@ -1,7 +1,6 @@
 Flask
 Flask-Cors
+requests
 gspread
 oauth2client
-requests
-beautifulsoup4
-gunicorn
+BeautifulSoup4
