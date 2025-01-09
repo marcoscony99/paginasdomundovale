@@ -6,6 +6,19 @@ from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
 
+# Carregar o conteúdo do arquivo JSON
+with open('paginasdomundo-7384106e9a3c.json') as f:
+    credentials_json = f.read()
+
+# Definir a variável de ambiente
+os.environ['GOOGLE_CREDENTIALS_JSON'] = credentials_json
+
+# Verificar se a variável foi definida corretamente
+if os.getenv('GOOGLE_CREDENTIALS_JSON'):
+    print("Variável de ambiente 'GOOGLE_CREDENTIALS_JSON' definida com sucesso!")
+else:
+    print("Erro ao definir a variável de ambiente 'GOOGLE_CREDENTIALS_JSON'.")
+
 # Defina o escopo para acessar a planilha
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
