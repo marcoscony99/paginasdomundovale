@@ -23,9 +23,12 @@ credentials_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
 
 if credentials_json is None:
     raise ValueError("A variável de ambiente 'GOOGLE_CREDENTIALS_JSON' não foi definida.")
+else:
+    print("Credenciais JSON carregadas com sucesso!")
+    credentials_info = json.loads(credentials_json)
+    print("Tipo de credencial:", credentials_info.get("type"))
 
 # Carregar as credenciais a partir da variável de ambiente
-credentials_info = json.loads(credentials_json)
 credentials = Credentials.from_service_account_info(credentials_info, scopes=scope)
 
 # Verificar se as credenciais precisam ser atualizadas
@@ -61,12 +64,27 @@ def run_scrapers():
         scrape_clarin, scrape_corriere, scrape_elpais, scrape_thestar, scrape_lanacion,
         scrape_eluniversal, scrape_ynet
     ]
+    
+    print("Iniciando o scraping...")
+    
     results = []
     for scraper in scrapers:
+        print(f"Executando scraper: {scraper.__name__}")
         result = scraper()
+        
+        # Verifica se todos os campos necessários estão presentes no resultado
         if all(key in result for key in ['jornal', 'link', 'manchete', 'horario', 'label', 'lat', 'lng']):
+            print(f"Scraper {scraper.__name__} executado com sucesso.")
             results.append(result)
-    update_sheet(results)
+        else:
+            print(f"Scraper {scraper.__name__} retornou dados incompletos ou inválidos.")
+    
+    # Chamando a função para atualizar a planilha
+    if results:
+        print(f"Atualizando a planilha com {len(results)} resultados...")
+        update_sheet(results)
+    else:
+        print("Nenhum dado válido para atualizar a planilha.")
 
 # Rota para servir a página HTML
 @app.route('/')
@@ -96,9 +114,11 @@ def get_news():
 @app.route('/update-news', methods=['GET'])
 def update_news():
     try:
+        print("Iniciando o scraper e atualização da planilha...")
         run_scrapers()
         return jsonify({"message": "Planilha atualizada com sucesso!"}), 200
     except Exception as e:
+        print(f"Erro: {str(e)}")
         return jsonify({"message": f"Erro ao atualizar a planilha: {str(e)}"}), 500
 
 if __name__ == '__main__':

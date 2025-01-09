@@ -2,8 +2,8 @@ import gspread
 import json
 import os
 from google.oauth2.service_account import Credentials
-import requests
 from bs4 import BeautifulSoup
+import requests
 from datetime import datetime
 
 # Defina o escopo para acessar a planilha
@@ -428,6 +428,6 @@ def update_spreadsheet():
             row += 1  # Incrementa para a próxima linha
 
   
-
 # Atualize a planilha com os dados de scraping
-update_spreadsheet()
+if __name__ == "__main__":
+    update_spreadsheet()
