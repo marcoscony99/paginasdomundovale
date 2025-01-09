@@ -30,13 +30,16 @@
     let newsData = {};
     let isNightMode = true; // Variável para controlar o modo
 
-    fetch('http://127.0.0.1:5000/get-news')
-      .then(response => response.json())
-      .then(data => {
-        newsData = data; // Agora o objeto 'newsData' contém todos os países e suas notícias
-        renderGlobe(newsData); // Função que renderiza o globo
-      })
-      .catch(err => console.error('Erro ao buscar as notícias:', err));
+    fetch('https://paginasdomundovale.onrender.com/get-news')
+    .then(response => response.json())
+    .then(data => {
+        console.log("Notícias carregadas:", data);
+        // Código para renderizar o globo
+    })
+    .catch(error => {
+        console.error("Erro ao buscar as notícias:", error);
+    });
+
 
     function renderGlobe(data) {
       const markerSvg = `<div style="font-size: 16px; color: #00ffcc; cursor: pointer;">📍</div>`;
