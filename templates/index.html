@@ -42,26 +42,35 @@
     });
 
     function renderGlobe(data) {
-      console.log("Renderizando o globo com os dados:", Object.values(data));
-      const markerSvg = `<div style="font-size: 16px; color: #00ffcc; cursor: pointer;">📍</div>`;
-      window.globe = new Globe(document.getElementById('globeViz'))
-        .globeImageUrl(isNightMode 
-            ? 'https://unpkg.com/three-globe/example/img/earth-night.jpg' 
-            : 'https://unpkg.com/three-globe/example/img/earth-day.jpg')
-        .backgroundColor(isNightMode ? '#0d1117' : '#6891d0')
-        .htmlElementsData(Object.values(data))
-        .htmlElement(d => {
-          console.log("Processando marcador:", d);
-          const el = document.createElement('div');
-          el.innerHTML = markerSvg;
-          el.style.color = '#00ffcc';
-          el.style.width = '30px';
-          el.style['pointer-events'] = 'auto';
-          el.style.cursor = 'pointer';
-          el.onclick = () => showModal(d.news.title, d.news.link, d.label);
-          return el;
-        });
-    }
+  console.log("Renderizando o globo com os dados:", Object.values(data));
+  const markerSvg = `<div style="font-size: 16px; color: #00ffcc; cursor: pointer;">📍</div>`;
+  
+  const globeInstance = new Globe(document.getElementById('globeViz'))
+    .globeImageUrl(isNightMode 
+        ? 'https://unpkg.com/three-globe/example/img/earth-night.jpg' 
+        : 'https://unpkg.com/three-globe/example/img/earth-day.jpg')
+    .backgroundColor(isNightMode ? '#0d1117' : '#6891d0')
+    .htmlElementsData(Object.values(data))
+    .htmlElement(d => {
+      const el = document.createElement('div');
+      el.innerHTML = markerSvg;
+      el.style.color = '#00ffcc';
+      el.style.width = '30px';
+      el.style['pointer-events'] = 'auto';
+      el.style.cursor = 'pointer';
+      el.onclick = () => showModal(d.news.title, d.news.link, d.label);
+      return el;
+    });
+
+  // Salvar a instância globalmente
+  window.globe = globeInstance;
+
+  // Rotação automática
+  const controls = globeInstance.controls(); // Obter controles de câmera
+  controls.autoRotate = true;               // Ativar rotação automática
+  controls.autoRotateSpeed = 1.8;           // Ajustar a velocidade da rotação
+}
+
 
     function showModal(title, link, country) {
       document.getElementById('countryTitle').innerText = country;
