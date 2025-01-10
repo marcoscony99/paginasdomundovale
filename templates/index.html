@@ -28,33 +28,37 @@
 
   <script>
     let newsData = {};
-    let isNightMode = true; // Variável para controlar o modo
+    let isNightMode = true;
 
     fetch('https://paginasdomundovale.onrender.com/get-news')
     .then(response => response.json())
     .then(data => {
         console.log("Notícias carregadas:", data);
-        // Código para renderizar o globo
+        newsData = data;
+        renderGlobe(newsData);
     })
     .catch(error => {
         console.error("Erro ao buscar as notícias:", error);
     });
 
-
     function renderGlobe(data) {
+      console.log("Renderizando o globo com os dados:", Object.values(data));
       const markerSvg = `<div style="font-size: 16px; color: #00ffcc; cursor: pointer;">📍</div>`;
       window.globe = new Globe(document.getElementById('globeViz'))
-        .globeImageUrl(isNightMode ? '//unpkg.com/three-globe/example/img/earth-night.jpg' : '//unpkg.com/three-globe/example/img/earth-day.jpg') // Imagem conforme o modo
-        .backgroundColor(isNightMode ? '#0d1117' : '#87ceeb') // Alterando a cor de fundo conforme o modo
-        .htmlElementsData(Object.values(data)) // Passando os dados para o globo
+        .globeImageUrl(isNightMode 
+            ? 'https://unpkg.com/three-globe/example/img/earth-night.jpg' 
+            : 'https://unpkg.com/three-globe/example/img/earth-day.jpg')
+        .backgroundColor(isNightMode ? '#0d1117' : '#87ceeb')
+        .htmlElementsData(Object.values(data))
         .htmlElement(d => {
+          console.log("Processando marcador:", d);
           const el = document.createElement('div');
           el.innerHTML = markerSvg;
           el.style.color = '#00ffcc';
           el.style.width = '30px';
           el.style['pointer-events'] = 'auto';
           el.style.cursor = 'pointer';
-          el.onclick = () => showModal(d.news.title, d.news.link, d.label); // Chama showModal ao clicar
+          el.onclick = () => showModal(d.news.title, d.news.link, d.label);
           return el;
         });
     }
@@ -92,9 +96,9 @@
     });
 
     document.getElementById('mode-toggle-button').addEventListener('click', () => {
-      isNightMode = !isNightMode; // Alterna entre os modos
-      renderGlobe(newsData); // Atualiza o globo com o novo modo
-      document.getElementById('mode-toggle-button').innerText = isNightMode ? '🌙' : '☀️'; // Troca o ícone do botão
+      isNightMode = !isNightMode;
+      renderGlobe(newsData);
+      document.getElementById('mode-toggle-button').innerText = isNightMode ? '🌙' : '☀️';
     });
   </script>
 </body>
