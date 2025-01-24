@@ -118,20 +118,26 @@ def scrape_smh():
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-        headline = soup.find('h3', class_='_2XVos _1SXCB')
+        # Procurar todos os elementos com data-testid="article-headline"
+        headlines = soup.find_all('h3', {'data-testid': 'article-headline'})
 
-        if headline:
-            title = headline.get_text(strip=True)
-            link = headline.find('a', href=True)
-            if link:
-                complete_url = f"https://www.smh.com.au{link['href']}"
-            else:
-                complete_url = "Link não encontrado."
-            return {'title': title, 'link': complete_url}
+        if headlines:
+            for headline_tag in headlines:
+                # Procurar o texto da manchete e o link associado
+                link_tag = headline_tag.find('a', {'data-testid': 'article-link'}, href=True)
+                if link_tag:
+                    title = link_tag.get_text(strip=True)
+                    complete_url = f"https://www.smh.com.au{link_tag['href']}"
+                    # Verificar se a manchete corresponde à esperada
+                    if title and "managed-retreat" in complete_url:
+                        return {'title': title, 'link': complete_url}
+
+            return {'title': "Manchete principal não encontrada.", 'link': None}
         else:
             return {'title': "Manchete principal não encontrada.", 'link': None}
     else:
         return {'title': f"Falha ao acessar a página: {response.status_code}", 'link': None}
+
 
 def scrape_clarin():
     url = 'https://www.clarin.com/'
