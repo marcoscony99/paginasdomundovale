@@ -58,20 +58,29 @@ def index():
 def get_news():
     sheet_data = get_sheet_data()
     news_data = {}
+
     for row in sheet_data:
         country = row['label']
+        title = str(row.get('Manchete') or '').strip()
+        link = str(row.get('Link') or '').strip()
+        time = row.get('Horário')
+
+        if not country or not title or not link:
+            continue
+
         news_data[country] = {
             'lat': float(row['lat'].strip('"')) if row['lat'] else 0,
             'lng': float(row['lng'].strip('"')) if row['lng'] else 0,
             'label': country,
             'news': {
-                'title': row['Manchete'],
-                'link': row['Link'],
-                'time': row['Horário']
+                'title': title,
+                'link': link,
+                'time': time
             }
         }
-    return jsonify(news_data)
 
+    return jsonify(news_data)
+    
 # Rota para rodar os scrapers e atualizar a planilha
 @app.route('/update-news', methods=['GET'])
 def update_news():
