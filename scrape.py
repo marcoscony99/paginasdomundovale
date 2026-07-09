@@ -403,11 +403,8 @@ def scrape_sowetan():
 
 # Função para preencher a planilha com os resultados
 def update_spreadsheet():
-    row = 2  # Começar na segunda linha da planilha
-    
-    # Defina os sites que você quer raspar
     scraping_functions = [
-        scrape_oglobo,  # Adicione as outras funções de scraping aqui
+        scrape_oglobo,
         scrape_nyt,
         scrape_guardian,
         scrape_lemonde,
@@ -421,19 +418,59 @@ def update_spreadsheet():
         scrape_ynet,
         scrape_sowetan
     ]
-    
-    for scrape_function in scraping_functions:
-        news_data = scrape_function()  # Realiza o scraping
-        
-        if news_data and news_data['link']:
-            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Hora da raspagem
-            worksheet.update_cell(row, 1, scrape_function.__name__.replace("scrape_", "").capitalize())  # País
-            worksheet.update_cell(row, 2, news_data['link'])  # Link da notícia
-            worksheet.update_cell(row, 3, news_data['title'])  # Título da notícia
-            worksheet.update_cell(row, 4, current_time)  # Hora da raspagem
-            row += 1  # Incrementa para a próxima linha
 
-  
-# Atualize a planilha com os dados de scraping
-if __name__ == "__main__":
-    update_spreadsheet()
+    start_row = 2
+
+    for index, scrape_function in enumerate(scraping_functions):
+        row = start_row + index
+        source_name = scrape_function.__name__.replace("scrape_", "").capitalize()
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        print(f"Atualizando linha {row}: {source_name}")
+
+        try:
+            news_data = scrape_function()
+        except Exception as e:
+            print(f"Erro no scraper {source_name}: {str(e)}")
+
+            worksheet.update_cell(row, 1, source_name)
+            worksheet.update_cell(row, 2, "")
+            worksheet.update_cell(row, 3, f"Erro no scraping de {source_name}: {str(e)}")
+            worksheet.update_cell(row, 4, current_time)
+
+            continue
+
+        if not isinstance(news_data, dict):
+            print(f"Resposta inválida do scraper {source_name}: {news_data}")
+
+            worksheet.update_cell(row, 1, source_name)
+            worksheet.update_cell(row, 2, "")
+            worksheet.update_cell(row, 3, f"Resposta inválida do scraper {source_name}")
+            worksheet.update_cell(row, 4, current_time)
+
+            continue
+
+        link = str(news_data.get("link") or "").strip()
+        title = str(news_data.get("title") or "").strip()
+        error = str(news_data.get("error") or "").strip()
+
+        if not link or "não encontrado" in link.lower():
+            message = error or title or f"Notícia não encontrada para {source_name}"
+            print(f"Sem notícia válida para {source_name}: {message}")
+
+            worksheet.update_cell(row, 1, source_name)
+            worksheet.update_cell(row, 2, "")
+            worksheet.update_cell(row, 3, message)
+            worksheet.update_cell(row, 4, current_time)
+
+            continue
+
+        if not title:
+            title = "Título não encontrado"
+
+        worksheet.update_cell(row, 1, source_name)
+        worksheet.update_cell(row, 2, link)
+        worksheet.update_cell(row, 3, title)
+        worksheet.update_cell(row, 4, current_time)
+
+        print(f"{source_name} atualizado com sucesso.")
